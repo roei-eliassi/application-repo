@@ -1,0 +1,20 @@
+# Calculator Application
+
+Flask calculator application deployed using Jenkins CI/CD.
+
+## CI/CD Flow
+
+Pipeline:
+1. Build Docker image
+2. Run unit tests
+3. Push image to AWS ECR
+4. Deploy container to EC2
+5. Verify /health endpoint
+
+## Technologies
+
+- Python Flask
+- Docker
+- Jenkins
+- AWS ECR
+- AWS EC2
