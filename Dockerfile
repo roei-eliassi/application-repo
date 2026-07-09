@@ -1,19 +1,13 @@
-FROM jenkins/jenkins:lts-jdk21
+FROM python:3.12-slim
 
-USER root
+WORKDIR /app
 
-# Install Docker CLI, Git and AWS CLI
-RUN apt-get update && \
-    apt-get install -y \
-        docker.io \
-        git \
-        awscli && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+COPY requirements.txt .
 
-# Install Jenkins plugins
-COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
+COPY . .
 
-USER jenkins
+EXPOSE 5000
+
+CMD ["python", "api.py"]
