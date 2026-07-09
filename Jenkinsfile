@@ -19,7 +19,7 @@ pipeline {
 	        sh 'apk add --no-cache --upgrade expat'
         	sh 'apk add --no-cache python3 py3-pip aws-cli'
 	        sh 'pip install --break-system-packages -r requirements.txt'
-        	sh 'python3 -m unittest discover tests/unit'
+        	sh 'python3 -m unittest discover tests'
             }
         }
         stage('Build & Push') {
