@@ -7,6 +7,7 @@ pipeline {
             args '-v /var/run/docker.sock:/var/run/docker.sock' 
         }
     }
+<<<<<<< HEAD
     
     environment {
         AWS_REGION = "il-central-1" // שנה ל-Region שלך
@@ -15,6 +16,11 @@ pipeline {
         PYTHONUSERBASE = "${env.WORKSPACE}/.local"
     }
 
+=======
+    environment {
+        PYTHONUSERBASE = "${env.WORKSPACE}/.local"
+    }
+>>>>>>> 9efa6da8517c675933cdb169bd98071b2f6b0313
     stages {
         stage('Checkout') {
             steps {
@@ -25,7 +31,10 @@ pipeline {
         stage('Install & Test') {
             steps {
                 sh 'pip install --user -r requirements.txt'
+<<<<<<< HEAD
                 sh 'python -m unittest discover tests'
+=======
+>>>>>>> 9efa6da8517c675933cdb169bd98071b2f6b0313
             }
         }
 
