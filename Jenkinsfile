@@ -22,10 +22,10 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                sh 'apk update'
-                sh 'apk add --no-cache python3 py3-pip aws-cli curl'
-                sh 'pip install --break-system-packages -r requirements.txt'
-                sh 'python3 -m unittest discover tests'
+                sh """
+                    docker run --rm ${IMAGE_NAME}:${BUILD_NUMBER} \
+                    python3 -m unittest discover tests
+                """
             }
         }
 
