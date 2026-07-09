@@ -93,7 +93,7 @@ pipeline {
 
                     apk add --no-cache curl
 
-                    curl --fail http://localhost:5000/health
+                    curl --fail http://10.0.1.226:5000/health
                 """
             }
         }
