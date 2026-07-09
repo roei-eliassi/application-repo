@@ -1,3 +1,4 @@
+```groovy
 pipeline {
     agent {
         docker {
@@ -34,11 +35,10 @@ pipeline {
 
         stage('Install AWS CLI') {
             steps {
-                sh '''
+                sh """
                     apk add --no-cache aws-cli
-		    aws --version
-
-                '''
+                    aws --version
+                """
             }
         }
 
@@ -92,6 +92,8 @@ pipeline {
 
                     sleep 10
 
+                    apk add --no-cache curl
+
                     curl --fail http://localhost:5000/health
                 """
             }
@@ -108,3 +110,5 @@ pipeline {
         }
     }
 }
+```
+
