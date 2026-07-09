@@ -32,6 +32,16 @@ pipeline {
             }
         }
 
+        stage('Install AWS CLI') {
+            steps {
+                sh '''
+                    apk add --no-cache python3 py3-pip
+                    pip install awscli
+                    aws --version
+                '''
+            }
+        }
+
         stage('Push to ECR') {
             steps {
                 sh """
