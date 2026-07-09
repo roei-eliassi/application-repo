@@ -8,8 +8,8 @@ pipeline {
     
     environment {
         AWS_REGION = "il-central-1" 
-        ECR_REGISTRY = "123456789012.dkr.ecr.il-central-1.amazonaws.com" 
-        IMAGE_NAME = "my-calculator-app"
+        ECR_REGISTRY = "992382545251.dkr.ecr.il-central-1.amazonaws.com" 
+        IMAGE_NAME = "roeicicd"
         PYTHONUSERBASE = "${env.WORKSPACE}/.local"
     }
 
