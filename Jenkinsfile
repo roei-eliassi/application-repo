@@ -119,13 +119,24 @@ pipeline {
 
             steps {
                 sh """
-                    echo "Waiting for application..."
-
-                    sleep 10
-
                     apk add --no-cache curl
 
-                    curl --fail http://10.0.1.226:5000/health
+                    echo "Checking application health..."
+
+                    for i in 1 2 3 4 5
+                    do
+                        if curl --fail http://10.0.1.226:5000/health
+                        then
+                            echo "Application is healthy!"
+                            exit 0
+                        fi
+
+                        echo "Health check failed. Retry \$i/5"
+                        sleep 5
+                    done
+
+                    echo "Application failed health check"
+                    exit 1
                 """
             }
         }
