@@ -1,33 +1,27 @@
 pipeline {
     agent {
         docker { 
-            image 'python:3.9-slim' 
-            args '-v /var/run/docker.sock:/var/run/docker.sock' 
+            image 'docker:24.0-dind' 
+            args '-u root -v /var/run/docker.sock:/var/run/docker.sock' 
         }
     }
     
     environment {
-        AWS_REGION = "il-central-1" 
-        ECR_REGISTRY = "992382545251.dkr.ecr.il-central-1.amazonaws.com" 
+        AWS_REGION = "il-central-1"
+        ECR_REGISTRY = "54.157.34.222.dkr.ecr.il-central-1.amazonaws.com"
         IMAGE_NAME = "roeicicd"
-        PYTHONUSERBASE = "${env.WORKSPACE}/.local"
     }
 
     stages {
-        stage('Checkout') {
+        stage('CI - Unit Tests') {
             steps {
-                checkout scm
+                sh 'apk add --no-cache python3 py3-pip aws-cli'
+                sh 'pip install --break-system-packages -r requirements.txt'
+                sh 'python3 -m unittest discover tests/unit'
             }
         }
 
-        stage('Install & Test') {
-            steps {
-                sh 'pip install --user -r requirements.txt'
-                sh 'python -m unittest discover tests'
-            }
-        }
-
-        stage('Build & Push to ECR') {
+        stage('Build & Push') {
             steps {
                 script {
                     sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
@@ -35,6 +29,21 @@ pipeline {
                     sh "docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${ECR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
                     sh "docker push ${ECR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
                 }
+            }
+        }
+
+        stage('CD - Integration Tests') {
+            steps {
+                sh "docker pull ${ECR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
+                sh "docker run -d --name integration-test-app ${ECR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
+                sh 'python3 tests/integration/run_integration_tests.py'
+                sh 'docker stop integration-test-app && docker rm integration-test-app'
+            }
+        }
+
+        stage('CD - Deploy') {
+            steps {
+                echo "Deploying to production..."
             }
         }
     }
