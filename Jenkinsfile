@@ -15,9 +15,11 @@ pipeline {
     stages {
         stage('CI - Unit Tests') {
             steps {
-                sh 'apk add --no-cache python3 py3-pip aws-cli'
-                sh 'pip install --break-system-packages -r requirements.txt'
-                sh 'python3 -m unittest discover tests/unit'
+	        sh 'apk update'
+	        sh 'apk add --no-cache --upgrade expat'
+        	sh 'apk add --no-cache python3 py3-pip aws-cli'
+	        sh 'pip install --break-system-packages -r requirements.txt'
+        	sh 'python3 -m unittest discover tests/unit'
             }
         }
         stage('Build & Push') {
