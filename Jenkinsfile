@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'docker:24.0-dind'
+            image 'docker:29-cli'
             args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
@@ -16,15 +16,18 @@ pipeline {
 
         stage('Build Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
+                sh """
+                    docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .
+                """
             }
         }
 
         stage('Unit Tests') {
             steps {
                 sh """
-                    docker run --rm ${IMAGE_NAME}:${BUILD_NUMBER} \
-                    python3 -m unittest discover tests
+                    docker run --rm \
+                        ${IMAGE_NAME}:${BUILD_NUMBER} \
+                        python3 -m unittest discover tests
                 """
             }
         }
@@ -35,9 +38,11 @@ pipeline {
                     aws ecr get-login-password --region ${AWS_REGION} | \
                     docker login --username AWS --password-stdin ${ECR_REGISTRY}
 
-                    docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${ECR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                    docker tag ${IMAGE_NAME}:${BUILD_NUMBER} \
+                        ${ECR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
 
-                    docker push ${ECR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                    docker push \
+                        ${ECR_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
                 """
             }
         }
@@ -72,32 +77,24 @@ pipeline {
             }
 
             steps {
-                sh '''
+                sh """
                     echo "Waiting for application..."
 
-                    for i in {1..12}; do
-                        if curl --fail http://localhost:5000/health; then
-                            echo "Application is healthy"
-                            exit 0
-                        fi
+                    sleep 10
 
-                        sleep 5
-                    done
-
-                    echo "Health check failed"
-                    exit 1
-                '''
+                    curl --fail http://localhost:5000/health
+                """
             }
         }
     }
 
     post {
         success {
-            echo '✅ Pipeline completed successfully.'
+            echo "Pipeline completed successfully!"
         }
 
         failure {
-            echo '❌ Pipeline failed.'
+            echo "Pipeline failed!"
         }
     }
 }
